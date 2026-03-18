@@ -22,7 +22,7 @@ A end-to-end DevOps lab project. It includes a Python API instrumented with Prom
 ```
 devops-monitoring-stack/
 ├── app/
-│   ├── python-app/
+│   ├── src/
 │   │   └── main.py           # FastAPI app with Prometheus metrics middleware
 │   ├── tests/
 │   │   └── test_api.py       # API tests
