@@ -9,12 +9,12 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git credentialsId: 'github-creds',
-                    url: 'https://github.com/${GITHUB_USER}/devops-monitoring-stack.git'
-            }
-        }
+        // stage('Checkout') {
+        //     steps {
+        //         git credentialsId: 'github-creds',
+        //             url: "https://github.com/${GITHUB_USER}/devops-monitoring-stack.git"
+        //     }
+        // }
 
         stage('Run Tests') {
             steps {
