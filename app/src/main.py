@@ -54,7 +54,7 @@ async def metrics_middleware(request: Request, call_next):
 
 @app.get("/status")
 def status():
-    return {"status": "ok"}
+    return {"status": "CI/CD funcionando"}
 
 
 @app.get("/data")
