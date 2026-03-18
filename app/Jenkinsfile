@@ -1,0 +1,85 @@
+pipeline {
+    agent any
+
+    environment {
+        GITHUB_USER = "Quitanias"
+        IMAGE_NAME = "${GITHUB_USER}/app-devops-monitoring-stack"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git credentialsId: 'github-creds',
+                    url: 'https://github.com/${GITHUB_USER}/devops-monitoring-stack.git'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                dir('app') {
+                    sh 'pip install -r requirements.txt'
+                    sh 'pytest'
+                }
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                dir('app') {
+                    sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
+                }
+            }
+        }
+
+        stage('Login Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh "docker push $IMAGE_NAME:$IMAGE_TAG"
+            }
+        }
+
+        stage('Update Image with Kustomize') {
+            steps {
+                dir('infra/k8s') {
+                    sh """
+                    kustomize edit set image app=$IMAGE_NAME:$IMAGE_TAG
+                    """
+                }
+            }
+        }
+
+        stage('Commit and Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-creds',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GIT_PASS'
+                )]) {
+
+                    sh """
+                    git config user.email "jenkins@local"
+                    git config user.name "jenkins"
+
+                    git add infra/k8s/deployment.yaml
+                    git commit -m "chore: update image to $IMAGE_TAG [ci skip]" || echo "No changes"
+
+                    git push https://$GIT_USER:$GIT_PASS@github.com/${GITHUB_USER}/devops-monitoring-stack.git
+                    """
+                }
+            }
+        }
+    }
+}

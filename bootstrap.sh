@@ -137,3 +137,33 @@ kubectl get secret argocd-initial-admin-secret \
 
 echo ""
 echo "======================================"
+
+############################################
+# BUILD AND DEPLOY PYTHON API
+############################################
+
+echo "Building Python API image..."
+
+eval $(minikube docker-env)
+
+docker build -t app:latest .
+
+echo "Deploying Python API..."
+
+kubectl apply -f k8s/
+
+kubectl rollout status deployment/app
+
+echo "Python API deployed"
+
+echo ""
+echo "Test:"
+echo "kubectl port-forward svc/app 8000:80"
+
+
+############################################
+# INSTALL KUSTOMIZE
+############################################
+
+curl -s https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh | bash
+sudo mv kustomize /usr/local/bin/
