@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: app
   labels:
-    app: python-api
+    app: python
 spec:
   selector:
-    app: python-api
+    app: python
   ports:
     - name: http
       protocol: TCP

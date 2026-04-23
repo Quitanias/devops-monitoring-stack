@@ -8,7 +8,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: python-api
+      app: app
   endpoints:
   - port: http
     path: /metrics
