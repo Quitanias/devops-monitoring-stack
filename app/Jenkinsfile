@@ -17,10 +17,18 @@ pipeline {
         // }
 
         stage('Run Tests') {
+            // Diz ao Jenkins para puxar uma imagem do Python e rodar os passos lá dentro
+            agent {
+                docker {
+                    image 'python:3.11-slim'
+                    args '-u root:root' // Evita problemas de permissão de pasta
+                }
+            }
             steps {
                 dir('app') {
                     sh 'pip install -r requirements.txt'
-                    sh 'pytest'
+                    // Coloque o seu comando de teste aqui, ex:
+                    // sh 'pytest tests/test_api.py'
                 }
             }
         }
