@@ -5,6 +5,8 @@ metadata:
 spec:
   selector:
     app: app
+    labels:             # <-- ADICIONE ESTA LINHA
+      app: python-api
   ports:
     - name: http
       protocol: TCP
