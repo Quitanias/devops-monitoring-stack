@@ -66,7 +66,7 @@ helm repo update
 
 kubectl create namespace monitoring || true
 
-helm install monitoring prometheus-community/kube-prometheus-stack \
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
 -n monitoring
 
 echo "Observability stack installed"
@@ -78,6 +78,7 @@ echo "Observability stack installed"
 echo "Starting Jenkins container..."
 
 docker volume create jenkins_home || true
+docker rm -f jenkins || true
 
 docker run -d \
   --name jenkins \
@@ -146,11 +147,11 @@ echo "Building Python API image..."
 
 eval $(minikube docker-env)
 
-docker build -t app:latest .
+docker build -t app:latest ./app
 
 echo "Deploying Python API..."
 
-kubectl apply -f k8s/
+kubectl apply -k infra/k8s/
 
 kubectl rollout status deployment/app
 
