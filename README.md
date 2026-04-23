@@ -25,18 +25,25 @@ devops-monitoring-stack/
 │   ├── src/
 │   │   └── main.py           # FastAPI app with Prometheus metrics middleware
 │   ├── tests/
-│   │   └── test_api.py       # API tests
+│   │   ├── __init__.py       # Tests package
+│   │   └── test_api.py       # API tests with pytest
 │   ├── Dockerfile            # Container image definition
 │   ├── Jenkinsfile           # CI/CD pipeline definition
 │   └── requirements.txt      # Python dependencies
 │
 ├── infra/
-│   └── k8s/
-│       ├── deployment.yaml   # Kubernetes Deployment
-│       ├── service.yaml      # Kubernetes Service
-│       └── kustomization.yaml # Kustomize image override config
+│   ├── k8s/
+│   │   ├── deployment.yaml   # Kubernetes Deployment with health probes
+│   │   ├── service.yaml      # Kubernetes Service
+│   │   ├── servicemonitor.yaml # ServiceMonitor for Prometheus metrics scraping
+│   │   └── kustomization.yaml # Kustomize image override config
+│   └── argocd/
+│       └── argocd-app.yaml   # ArgoCD Application for GitOps
 │
-└── bootstrap.sh              # One-shot script to set up the full local environment
+├── bootstrap.sh              # One-shot script to set up the full local environment
+├── Makefile                  # Convenience targets for port-forwarding services
+├── .gitignore                # Git ignore rules
+└── README.md                 # Project documentation
 ```
 
 ---
@@ -55,6 +62,31 @@ A middleware automatically tracks every request, recording:
 - **Total request count** (`http_requests_total`) — labeled by method, endpoint, and status code
 - **Request latency** (`http_request_duration_seconds`) — labeled by endpoint
 - **Error count** (`http_errors_total`) — labeled by endpoint
+
+### Health Checks
+
+The Kubernetes Deployment includes **liveness** and **readiness probes** that monitor the `/status` endpoint:
+
+- **Readiness Probe**: Checks if the container is ready to receive traffic (waits 5 seconds before first check)
+- **Liveness Probe**: Ensures the container is still alive and restarts it if unhealthy (waits 10 seconds before first check)
+
+Both probes run every 5-10 seconds with a 3-failure threshold before taking action.
+
+### Testing
+
+Run tests locally with:
+
+```bash
+pip install -r app/requirements.txt
+pytest app/tests/
+```
+
+The test suite covers:
+- Health check endpoint (`GET /status`)
+- Data endpoint (`GET /data`)
+- Metrics endpoint (`GET /metrics`)
+- Prometheus metric collection validation
+- Multiple concurrent request tracking
 
 ---
 
@@ -106,7 +138,7 @@ The script will:
 3. Install **Helm** (if not present) and deploy the **Prometheus + Grafana** stack in the `monitoring` namespace
 4. Start a **Jenkins** container on port `8080`
 5. Build the Python API image inside Minikube's Docker daemon
-6. Deploy the app to Kubernetes with `kubectl apply -f k8s/`
+6. Deploy the app to Kubernetes with `kubectl apply -k infra/k8s/`
 7. Install **Kustomize**
 
 ### Accessing the Services
@@ -129,11 +161,26 @@ kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80
 
 > The Grafana and ArgoCD admin passwords are printed at the end of the `bootstrap.sh` output.
 
+Alternatively, use the provided `Makefile` for convenient port-forwarding:
+
+```bash
+make forward-app       # API on http://localhost:8000
+make forward-argo      # ArgoCD on https://localhost:8081
+make forward-jenkins   # Jenkins on http://localhost:8080
+make forward-grafana   # Grafana on http://localhost:3000
+make forward-prometheus # Prometheus on http://localhost:9090
+```
+
 ---
 
 ## Kubernetes Manifests
 
 The deployment is managed with **Kustomize**. The `kustomization.yaml` file overrides the image at deploy time, allowing Jenkins to update only the image tag without touching the base manifests.
+
+The manifests include:
+- `deployment.yaml`: Defines the application pods
+- `service.yaml`: Exposes the application on port 80
+- `servicemonitor.yaml`: Configures Prometheus to scrape metrics from the `/metrics` endpoint every 10 seconds
 
 ```yaml
 # infra/k8s/kustomization.yaml

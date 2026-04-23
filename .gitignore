@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+
+# Virtual environments
+.venv
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+
+# Logs
+*.log
+logs/
+
+# Jenkins
+jenkins_home/
+.jenkins/
+
+# Kubernetes/Docker
+.kubeconfig
+kubeconfig
+secrets.yaml
+*.pem
+*.key
+
+# Minikube
+.minikube/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Node (if Helm charts use Node tools)
+node_modules/
+npm-debug.log
+
+# Kustomize generated files
+kustomization.yaml.bak

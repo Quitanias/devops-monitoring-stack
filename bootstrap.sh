@@ -44,6 +44,16 @@ kubectl apply \
 echo "ArgoCD installed"
 
 ############################################
+# DEPLOY ARGOCD APPLICATION
+############################################
+
+echo "Deploying ArgoCD Application for GitOps..."
+
+kubectl apply -f infra/argocd/argocd-app.yaml
+
+echo "ArgoCD Application deployed"
+
+############################################
 # INSTALL HELM (IF NOT INSTALLED)
 ############################################
 
