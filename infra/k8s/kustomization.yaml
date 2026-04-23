@@ -9,4 +9,4 @@ resources:
 images:
 - name: app
   newName: quitanias/app-devops-monitoring-stack
-  newTag: "15"
+  newTag: "16"
