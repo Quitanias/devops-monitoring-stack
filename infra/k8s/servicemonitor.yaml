@@ -1,16 +1,15 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: app-monitor
+  name: fastapi-monitor
   namespace: default
   labels:
-    # Essa label é vital! Ela avisa o Prometheus para ler este arquivo
     release: monitoring
 spec:
   selector:
     matchLabels:
-      app: python-api # (Ou o nome exato do app no seu service.yaml)
+      app: python-api
   endpoints:
-  - port: http # O nome da porta declarada no seu service.yaml
+  - port: http
     path: /metrics
     interval: 10s

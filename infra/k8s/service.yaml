@@ -2,14 +2,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: app
+  labels:
+    app: python-api
 spec:
   selector:
-    app: app
-    labels:             # <-- ADICIONE ESTA LINHA
-      app: python-api
+    app: python-api
   ports:
     - name: http
       protocol: TCP
       port: 80
       targetPort: 8000
-  type: ClusterIP
