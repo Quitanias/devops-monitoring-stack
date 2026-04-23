@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         GITHUB_USER = "Quitanias"
-        IMAGE_NAME = "${GITHUB_USER}/app-devops-monitoring-stack"
+        IMAGE_NAME = "quitanias/app-devops-monitoring-stack"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
 
