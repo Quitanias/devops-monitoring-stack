@@ -66,26 +66,25 @@ pipeline {
             }
         }
 
-            stage('Commit and Push') {
-                steps {
-                    withCredentials([usernamePassword(
-                        credentialsId: 'github-creds',
-                        usernameVariable: 'GIT_USER',
-                        passwordVariable: 'GIT_PASS'
-                    )]) {
+        stage('Commit and Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-creds',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GIT_PASS'
+                )]) {
+                    
+                    sh '''
+                    git config user.email "jenkins@local"
+                    git config user.name "jenkins"
 
-                        sh """
-                        git config user.email "jenkins@local"
-                        git config user.name "jenkins"
+                    git add infra/k8s/kustomization.yaml
+                    git commit -m "chore: update image to ${IMAGE_TAG} [ci skip]" || echo "No changes"
 
-                        # CORREÇÃO AQUI: Adicionando o kustomization.yaml, que foi o arquivo alterado
-                        git add infra/k8s/kustomization.yaml
-                        git commit -m "chore: update image to $IMAGE_TAG [ci skip]" || echo "No changes"
-
-                        git push https://$GIT_USER:$GIT_PASS@github.com/${GITHUB_USER}/devops-monitoring-stack.git
-                        """
-                    }
+                    git push https://${GIT_USER}:${GIT_PASS}@github.com/${GITHUB_USER}/devops-monitoring-stack.git HEAD:main
+                    '''
                 }
             }
+        }
     }
 }
